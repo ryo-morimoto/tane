@@ -19,6 +19,7 @@ export async function gh(
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
+      "User-Agent": "tane/0.1.0",
       ...((options.headers as Record<string, string>) ?? {}),
     },
   });
