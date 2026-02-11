@@ -1,6 +1,7 @@
 export interface AuthConfig {
   clientId: string;
   clientSecret: string;
+  appSlug: string;
 }
 
 export function generateState(): string {
@@ -42,20 +43,11 @@ function parseCookies(req: Request): Record<string, string> {
 
 export function handleAuthRedirect(
   config: AuthConfig,
-  req: Request,
+  _req: Request,
 ): Response {
   const state = generateState();
-  const origin = new URL(req.url).origin;
-  const redirectUri = `${origin}/auth/callback`;
 
-  const params = new URLSearchParams({
-    client_id: config.clientId,
-    redirect_uri: redirectUri,
-    scope: "repo",
-    state,
-  });
-
-  const url = `https://github.com/login/oauth/authorize?${params}`;
+  const url = `https://github.com/apps/${config.appSlug}/installations/new?state=${state}`;
 
   return new Response(null, {
     status: 302,

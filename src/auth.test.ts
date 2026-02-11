@@ -10,6 +10,7 @@ import {
 const authConfig: AuthConfig = {
   clientId: "test-client-id",
   clientSecret: "test-client-secret",
+  appSlug: "test-app",
 };
 
 describe("generateState", () => {
@@ -61,18 +62,13 @@ describe("extractToken", () => {
 });
 
 describe("handleAuthRedirect", () => {
-  it("returns 302 redirect to GitHub", () => {
+  it("returns 302 redirect to GitHub App install page", () => {
     const req = new Request("https://example.com/auth/github");
     const res = handleAuthRedirect(authConfig, req);
     expect(res.status).toBe(302);
     const location = res.headers.get("Location")!;
-    expect(location).toContain("github.com/login/oauth/authorize");
-    expect(location).toContain("client_id=test-client-id");
-    expect(location).toContain("scope=repo");
+    expect(location).toContain("github.com/apps/test-app/installations/new");
     expect(location).toContain("state=");
-    expect(location).toContain(
-      encodeURIComponent("https://example.com/auth/callback"),
-    );
   });
 
   it("sets HttpOnly Secure SameSite cookie", () => {

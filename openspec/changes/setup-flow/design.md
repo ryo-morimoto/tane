@@ -111,7 +111,7 @@ async ({ title, tags, body }) => {
 }
 ```
 
-### `formatError` helper (src/mcp.ts)
+### `formatError` helper (src/format-error.ts)
 
 Maps `GitHubApiError` status codes to user-facing messages:
 
@@ -139,6 +139,8 @@ Errors from `ensureRepo` (not `GitHubApiError`) are passed through as-is, since 
 | `src/auth.test.ts` | Update tests for new redirect target |
 | `src/github.ts` | `ensureRepo` error message with create URL |
 | `src/github-repository.test.ts` | Update ensureRepo test |
+| `src/format-error.ts` | New: `formatError` helper mapping errors to actionable messages |
+| `src/mcp-error.test.ts` | New: tests for `formatError` |
 | `src/mcp.ts` | Error wrapping with `formatError`, `appSlug` from env |
 | `src/index.ts` | `Env.GITHUB_APP_SLUG`, pass to handlers |
 | `src/index.test.ts` | Update env mock |

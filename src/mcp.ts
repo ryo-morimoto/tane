@@ -6,10 +6,12 @@ import { ideaToSummary, serializeIdea } from "./markdown.js";
 import { createRepoConfig, getUser } from "./github.js";
 import { createIdea, listIdeas, getIdea, updateIdea, searchIdeas } from "./core.js";
 import { extractToken } from "./auth.js";
+import { formatError } from "./format-error.js";
 
 interface Env {
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
+  GITHUB_APP_SLUG: string;
 }
 
 function authError(message: string): Response {
@@ -22,7 +24,7 @@ function authError(message: string): Response {
   });
 }
 
-export async function handleMcp(req: Request, _env: Env): Promise<Response> {
+export async function handleMcp(req: Request, env: Env): Promise<Response> {
   const token = extractToken(req);
   if (!token) {
     return authError("Missing or invalid Authorization header");
@@ -36,6 +38,8 @@ export async function handleMcp(req: Request, _env: Env): Promise<Response> {
   }
 
   const config = createRepoConfig(token, user.login);
+  const appSlug = env.GITHUB_APP_SLUG;
+  const origin = new URL(req.url).origin;
 
   const server = new McpServer({
     name: "tane",
@@ -53,15 +57,19 @@ export async function handleMcp(req: Request, _env: Env): Promise<Response> {
       },
     },
     async ({ title, tags, body }) => {
-      const idea = await createIdea(config, { title, tags, body });
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: `Created idea: ${idea.id}\n\n${serializeIdea(idea)}`,
-          },
-        ],
-      };
+      try {
+        const idea = await createIdea(config, { title, tags, body });
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Created idea: ${idea.id}\n\n${serializeIdea(idea)}`,
+            },
+          ],
+        };
+      } catch (e) {
+        return { content: [{ type: "text" as const, text: formatError(e, appSlug, origin) }], isError: true };
+      }
     },
   );
 
@@ -74,12 +82,16 @@ export async function handleMcp(req: Request, _env: Env): Promise<Response> {
       },
     },
     async ({ status }) => {
-      const ideas = await listIdeas(config, status);
-      if (ideas.length === 0) {
-        return { content: [{ type: "text" as const, text: "No ideas found." }] };
+      try {
+        const ideas = await listIdeas(config, status);
+        if (ideas.length === 0) {
+          return { content: [{ type: "text" as const, text: "No ideas found." }] };
+        }
+        const summary = ideas.map(ideaToSummary).join("\n");
+        return { content: [{ type: "text" as const, text: summary }] };
+      } catch (e) {
+        return { content: [{ type: "text" as const, text: formatError(e, appSlug, origin) }], isError: true };
       }
-      const summary = ideas.map(ideaToSummary).join("\n");
-      return { content: [{ type: "text" as const, text: summary }] };
     },
   );
 
@@ -92,10 +104,14 @@ export async function handleMcp(req: Request, _env: Env): Promise<Response> {
       },
     },
     async ({ id }) => {
-      const idea = await getIdea(config, id);
-      return {
-        content: [{ type: "text" as const, text: serializeIdea(idea) }],
-      };
+      try {
+        const idea = await getIdea(config, id);
+        return {
+          content: [{ type: "text" as const, text: serializeIdea(idea) }],
+        };
+      } catch (e) {
+        return { content: [{ type: "text" as const, text: formatError(e, appSlug, origin) }], isError: true };
+      }
     },
   );
 
@@ -112,15 +128,19 @@ export async function handleMcp(req: Request, _env: Env): Promise<Response> {
       },
     },
     async ({ id, ...params }) => {
-      const idea = await updateIdea(config, id, params);
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: `Updated idea: ${idea.id}\n\n${serializeIdea(idea)}`,
-          },
-        ],
-      };
+      try {
+        const idea = await updateIdea(config, id, params);
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Updated idea: ${idea.id}\n\n${serializeIdea(idea)}`,
+            },
+          ],
+        };
+      } catch (e) {
+        return { content: [{ type: "text" as const, text: formatError(e, appSlug, origin) }], isError: true };
+      }
     },
   );
 
@@ -133,14 +153,18 @@ export async function handleMcp(req: Request, _env: Env): Promise<Response> {
       },
     },
     async ({ query }) => {
-      const ideas = await searchIdeas(config, query);
-      if (ideas.length === 0) {
-        return {
-          content: [{ type: "text" as const, text: "No matching ideas found." }],
-        };
+      try {
+        const ideas = await searchIdeas(config, query);
+        if (ideas.length === 0) {
+          return {
+            content: [{ type: "text" as const, text: "No matching ideas found." }],
+          };
+        }
+        const summary = ideas.map(ideaToSummary).join("\n");
+        return { content: [{ type: "text" as const, text: summary }] };
+      } catch (e) {
+        return { content: [{ type: "text" as const, text: formatError(e, appSlug, origin) }], isError: true };
       }
-      const summary = ideas.map(ideaToSummary).join("\n");
-      return { content: [{ type: "text" as const, text: summary }] };
     },
   );
 

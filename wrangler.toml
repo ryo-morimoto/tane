@@ -6,3 +6,6 @@ compatibility_flags = ["nodejs_compat"]
 routes = [
   { pattern = "tane.ryo-o.dev", custom_domain = true },
 ]
+
+[vars]
+GITHUB_APP_SLUG = "tane-app"

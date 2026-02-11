@@ -41,7 +41,7 @@ describe("ensureRepo", () => {
       new Response("Not Found", { status: 404 }),
     );
     await expect(ensureRepo(config)).rejects.toThrow(
-      'Repository "testuser/ideas" not found',
+      "Repository not found. Create it at https://github.com/new?name=ideas&private=true&description=Idea+management+repository+powered+by+tane then retry.",
     );
   });
 });

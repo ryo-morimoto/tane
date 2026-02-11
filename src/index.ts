@@ -4,6 +4,7 @@ import { handleAuthRedirect, handleAuthCallback } from "./auth.js";
 interface Env {
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
+  GITHUB_APP_SLUG: string;
 }
 
 export default {
@@ -22,6 +23,7 @@ export default {
       const authConfig = {
         clientId: env.GITHUB_CLIENT_ID,
         clientSecret: env.GITHUB_CLIENT_SECRET,
+        appSlug: env.GITHUB_APP_SLUG,
       };
       return handleAuthRedirect(authConfig, req);
     }
@@ -30,6 +32,7 @@ export default {
       const authConfig = {
         clientId: env.GITHUB_CLIENT_ID,
         clientSecret: env.GITHUB_CLIENT_SECRET,
+        appSlug: env.GITHUB_APP_SLUG,
       };
       return handleAuthCallback(authConfig, req);
     }

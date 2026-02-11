@@ -10,7 +10,7 @@ vi.mock("./auth.js", () => ({
 }));
 
 const worker = (await import("./index.js")).default;
-const env = { GITHUB_CLIENT_ID: "id", GITHUB_CLIENT_SECRET: "secret" };
+const env = { GITHUB_CLIENT_ID: "id", GITHUB_CLIENT_SECRET: "secret", GITHUB_APP_SLUG: "tane-app" };
 
 describe("routing", () => {
   beforeEach(() => vi.clearAllMocks());
