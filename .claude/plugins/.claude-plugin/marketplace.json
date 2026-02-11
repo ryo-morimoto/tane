@@ -1,0 +1,15 @@
+{
+  "name": "tane-local",
+  "description": "Local plugins for tane project",
+  "owner": {
+    "name": "ryo-morimoto"
+  },
+  "plugins": [
+    {
+      "name": "compound",
+      "version": "0.1.0",
+      "description": "Compound Engineering workflow",
+      "source": "./compound"
+    }
+  ]
+}
