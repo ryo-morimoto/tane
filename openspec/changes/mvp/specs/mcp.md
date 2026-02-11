@@ -30,6 +30,10 @@
 
 ## Authentication
 
-- Request without Bearer token → 401 error
-- Invalid token → 401 error
-- Valid token → identifies GitHub user, accesses that user's repository
+Token is extracted and validated before MCP processing (see auth.md for details).
+
+- No `Authorization` header → 401 error (before MCP handler)
+- Invalid/expired/revoked token → 401 error (validated via `GET /user` GitHub API)
+- Valid token → resolves GitHub username, constructs `RepoConfig`, proceeds to MCP handler
+
+Error responses for auth failures use generic messages and include `Cache-Control: no-store`.
