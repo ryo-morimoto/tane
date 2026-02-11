@@ -13,6 +13,6 @@
     ]
   },
   "enabledPlugins": {
-    "compound@opentoolbar-plugins": true
+    "compound@tane-local": true
   }
 }
