@@ -1,8 +1,8 @@
 project:
   name: tane
   description: >
-    GitHubリポジトリをデータストアにしたアイデア管理ツール。
-    MCPサーバーとWeb APIを提供し、Cloudflare Workersでホスティングする。
+    Idea management framework backed by GitHub repositories.
+    Provides MCP server and Web API, hosted on Cloudflare Workers.
   language: TypeScript
   runtime: Cloudflare Workers
   package_manager: bun
@@ -10,7 +10,7 @@ project:
 default_schema: compound
 
 conventions:
-  - Web Standard APIs only (Request/Response/fetch). Node.js固有のAPIは使わない
-  - 外部依存は最小限。必要なければライブラリを入れない
-  - GitHub REST APIへのアクセスはfetchで直接行う
-  - データは全てGitHubリポジトリ上のMarkdownファイル。外部DBは持たない
+  - Web Standard APIs only (Request/Response/fetch). No Node.js-specific APIs
+  - Minimal external dependencies. Don't add libraries unless necessary
+  - Access GitHub REST API directly with fetch (no Octokit)
+  - All data stored as Markdown files in GitHub repositories. No external DB

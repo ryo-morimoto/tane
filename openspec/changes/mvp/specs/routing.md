@@ -2,15 +2,15 @@
 
 ## Entry Point
 
-Cloudflare Workerの `fetch` handler がURLパスでルーティングする。
+Cloudflare Worker's `fetch` handler routes by URL path.
 
 ### Scenarios
 
 - `GET /health` → `{ status: "ok" }` (200)
-- `POST /mcp` → MCP handler (JSON-RPCリクエスト処理)
+- `POST /mcp` → MCP handler (JSON-RPC request processing)
 - `GET /mcp` → MCP handler (SSE)
-- `DELETE /mcp` → MCP handler (セッション終了)
-- `GET /auth/github` → OAuth開始（302リダイレクト）
+- `DELETE /mcp` → MCP handler (session termination)
+- `GET /auth/github` → OAuth initiation (302 redirect)
 - `GET /auth/callback?code=xxx` → OAuth callback
 - `GET /unknown` → 404
-- `POST /health` → 404（GETのみ）
+- `POST /health` → 404 (GET only)

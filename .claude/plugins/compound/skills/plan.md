@@ -1,5 +1,5 @@
 ---
-description: "Proposal生成のみ。チーム合意後に /compound:ship で実装を開始する。"
+description: "Generate proposal only for team alignment. Run /compound:ship to implement after approval."
 ---
 # Compound Plan
 

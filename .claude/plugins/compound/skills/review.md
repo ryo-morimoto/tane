@@ -1,5 +1,5 @@
 ---
-description: "既存コードの後追いレビュー: Verify → Review → Learn"
+description: "Post-hoc review of existing code: Verify → Review → Learn"
 ---
 # Compound Review
 

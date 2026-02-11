@@ -1,6 +1,6 @@
 # Markdown
 
-## フォーマット
+## Format
 
 ```markdown
 ---
@@ -11,36 +11,36 @@ updated_at: "2025-04-01"
 tags: [ai, tools]
 ---
 
-アイデアの本文がここに入る。
+The idea body goes here.
 ```
 
 ## parseIdea
 
-Markdown文字列 → Ideaオブジェクト
+Markdown string → Idea object
 
 ### Scenarios
 
-- 正常なMarkdown → 全フィールドが正しくパースされる
-- frontmatterのみ（bodyなし） → `body` は空文字
-- `---` 区切りが不正 → エラー
-- frontmatterのYAMLが不正 → エラー
-- zodバリデーション失敗（status不正等） → エラー
+- Valid Markdown → all fields parsed correctly
+- Frontmatter only (no body) → `body` is empty string
+- Invalid `---` delimiters → error
+- Invalid YAML in frontmatter → error
+- Zod validation failure (invalid status, etc.) → error
 
 ## serializeIdea
 
-Ideaオブジェクト → Markdown文字列
+Idea object → Markdown string
 
 ### Scenarios
 
-- 全フィールド設定済みのIdea → frontmatter + `---` + body の形式
-- body空のIdea → frontmatter + `---` のみ（末尾の改行処理）
-- `parseIdea(serializeIdea(idea))` === `idea` （ラウンドトリップ）
+- Idea with all fields set → frontmatter + `---` + body format
+- Idea with empty body → frontmatter + `---` only (handle trailing newline)
+- `parseIdea(serializeIdea(idea))` === `idea` (round-trip)
 
 ## ideaToSummary
 
-一覧表示用の1行サマリー
+Single-line summary for list display
 
 ### Scenarios
 
-- `ideaToSummary(idea)` → `"[seed] My Idea (2025-04-01)"` のような形式
-- タグ付きの場合 → タグも含む
+- `ideaToSummary(idea)` → format like `"[seed] My Idea (2025-04-01)"`
+- With tags → tags included

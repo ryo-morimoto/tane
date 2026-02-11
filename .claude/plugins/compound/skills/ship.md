@@ -1,5 +1,5 @@
 ---
-description: "全自動サイクル: Plan → Implement → Verify → Review → Learn → Archive"
+description: "Full automated cycle: Plan → Implement → Verify → Review → Learn → Archive"
 ---
 # Compound Ship
 

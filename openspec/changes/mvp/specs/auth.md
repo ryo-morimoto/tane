@@ -4,26 +4,26 @@
 
 ### handleAuthRedirect
 
-- リクエスト → GitHub OAuth URL (`github.com/login/oauth/authorize`) へ302リダイレクト
-- `client_id`, `scope` パラメータが含まれる
-- scope: `repo`（プライベートリポジトリへのアクセスに必要）
+- Request → 302 redirect to GitHub OAuth URL (`github.com/login/oauth/authorize`)
+- Includes `client_id` and `scope` parameters
+- scope: `repo` (required for private repository access)
 
 ### handleAuthCallback
 
-- 有効なcode付きリクエスト → tokenを取得し、HTMLページで表示
-- codeなし → エラーレスポンス
-- 無効なcode → エラーレスポンス
+- Request with valid code → obtains token, returns HTML page displaying it
+- No code → error response
+- Invalid code → error response
 
 ### exchangeCode
 
-- 有効なcode → access_tokenを返す
-- GitHub APIへのPOSTが正しいパラメータを持つ
+- Valid code → returns access_token
+- POST to GitHub API has correct parameters
 
 ## extractToken
 
 ### Scenarios
 
-- `Authorization: Bearer xxx` ヘッダー → `"xxx"`
-- `Authorization: bearer xxx`（小文字） → `"xxx"`
-- ヘッダーなし → `null`
+- `Authorization: Bearer xxx` header → `"xxx"`
+- `Authorization: bearer xxx` (lowercase) → `"xxx"`
+- No header → `null`
 - `Authorization: Basic xxx` → `null`

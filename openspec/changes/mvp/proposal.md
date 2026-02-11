@@ -1,42 +1,42 @@
 # Proposal: tane
 
-## 動機
+## Motivation
 
-開発者にはアイデアが断続的に湧く。技術設計はまだだが課題と方向性は見えているもの、シンプルに作ってみたいもの。これらは書き留めなければ消え、書き留めてもコンテキストが失われる。
+Developers have ideas that come and go. Some have a clear problem and direction but no technical design yet. Some are things you just want to try building. These vanish if not written down, and even when written down, the context gets lost.
 
-既存ツール（GitHub Issues, Linear, BrainGrid, Notion等）は「作ることが決まったもの」のタスク管理やspec構造化に特化しており、アイデアの初期段階を軽くストックして後から育てるワークフローには合わない。
+Existing tools (GitHub Issues, Linear, BrainGrid, Notion, etc.) specialize in task management and spec structuring for "things already decided to build." They don't fit a workflow of casually stocking early-stage ideas and growing them over time.
 
-## 解決
+## Solution
 
-GitHubリポジトリをデータストアにしたアイデア管理フレームワークを作る。
+Build an idea management framework backed by GitHub repositories.
 
-- `ideas` リポジトリにMarkdownファイルとしてアイデアを保管
-- データフォーマット（Markdownスキーマ）とワークフロー（ライフサイクル）を定義
-- MCPサーバーとして任意のLLMクライアントから操作可能
-- Web APIも提供し、将来Web UIやCLIからもアクセス可能
-- Cloudflare Workersでホスティング
+- Store ideas as Markdown files in an `ideas` repository
+- Define a data format (Markdown schema) and workflow (lifecycle)
+- Accessible from any LLM client as an MCP server
+- Also provide a Web API for future Web UI and CLI access
+- Hosted on Cloudflare Workers
 
-## スコープ
+## Scope
 
-### MVP（このプロジェクト）
+### MVP (this project)
 
-- Markdownスキーマ定義（frontmatter + body）
-- GitHub API操作層（fetch直接）
-- GitHub App OAuth認証
-- MCPサーバー（5ツール: create, list, get, update, search）
-- Cloudflare Workerとしてデプロイ
+- Markdown schema definition (frontmatter + body)
+- GitHub API layer (direct fetch)
+- GitHub App OAuth authentication
+- MCP server (5 tools: create, list, get, update, search)
+- Deploy as a Cloudflare Worker
 
-### 将来（別change）
+### Future (separate changes)
 
-- Web API endpoints（REST JSON）
+- Web API endpoints (REST JSON)
 - Web UI
-- promote機能（アイデアから新規GitHubリポジトリを作成）
-- refine機能（AI対話でコンセプトを深堀り）
+- Promote feature (create a new GitHub repo from an idea)
+- Refine feature (deepen concepts through AI conversation)
 - CLI
 
-## 差別化
+## Differentiation
 
-- **GitHubがデータストア**: SaaSにデータを預けない。gitの履歴でアイデアの発展過程が残る
-- **MCPでLLMロックインなし**: Claude, Cursor, Gemini等どこからでもアクセス可能
-- **アイデアの初期フェーズに特化**: seed（1行メモ）からrefined（spec化）まで
-- **依存最小限**: MCP SDK, yaml, zodの3つだけ
+- **GitHub as data store**: No data locked in SaaS. Git history preserves how ideas evolve
+- **MCP for no LLM lock-in**: Accessible from Claude, Cursor, Gemini, etc.
+- **Focused on early-stage ideas**: From seed (one-line memo) to refined (spec-ready)
+- **Minimal dependencies**: Only MCP SDK, yaml, and zod

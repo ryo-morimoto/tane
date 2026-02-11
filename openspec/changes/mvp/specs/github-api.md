@@ -1,58 +1,58 @@
 # GitHub API
 
-## gh (fetchラッパー)
+## gh (fetch wrapper)
 
 ### Scenarios
 
-- 正常レスポンス → JSONパース結果を返す
-- 404レスポンス → 適切なエラー
-- 401レスポンス → 認証エラー
-- Authorization headerが正しく付与される
+- Successful response → returns parsed JSON
+- 404 response → appropriate error
+- 401 response → authentication error
+- Authorization header is correctly set
 
 ## IdeasRepository
 
 ### ensureRepo
 
-- リポジトリが存在する → 何もしない
-- リポジトリが存在しない → 新規作成（private、description付き）
+- Repo exists → no-op
+- Repo does not exist → create new (private, with description)
 
 ### create
 
-- 新規Idea → `PUT /repos/{owner}/{repo}/contents/ideas/{id}.md` でファイル作成
-- base64エンコードされたcontent が正しい
-- commit messageが設定される
+- New Idea → creates file via `PUT /repos/{owner}/{repo}/contents/ideas/{id}.md`
+- base64-encoded content is correct
+- Commit message is set
 
 ### get
 
-- 存在するID → Ideaオブジェクトを返す（base64デコード → parseIdea）
-- 存在しないID → エラー
+- Existing ID → returns Idea object (base64 decode → parseIdea)
+- Non-existing ID → error
 
 ### update
 
-- 既存のIdea → 現在のSHAを取得してPUT（optimistic locking）
-- SHA不一致（並行更新） → 409エラー
+- Existing Idea → fetches current SHA then PUTs (optimistic locking)
+- SHA mismatch (concurrent update) → 409 error
 
 ### list
 
-- ディレクトリにファイルがある → Idea[]を返す
-- statusFilter指定 → フィルタリング済みの結果
-- ディレクトリが空/存在しない → 空配列
+- Directory has files → returns Idea[]
+- statusFilter specified → filtered results
+- Directory empty or does not exist → empty array
 
 ### search
 
-- queryに一致するアイデア → マッチしたIdea[]
-- 一致なし → 空配列
-- 検索対象: title + body + tags
+- Query matches ideas → returns matched Idea[]
+- No matches → empty array
+- Search targets: title + body + tags
 
 ## base64 encode/decode
 
 ### Scenarios
 
-- ASCII文字列 → 正しくencode/decode
-- 日本語（UTF-8マルチバイト） → 正しくencode/decode
-- 空文字列 → 空文字列
+- ASCII string → correct encode/decode
+- Japanese (UTF-8 multibyte) → correct encode/decode
+- Empty string → empty string
 
 ## getUser
 
-- 有効なtoken → `{ login: "username" }`
-- 無効なtoken → エラー
+- Valid token → `{ login: "username" }`
+- Invalid token → error

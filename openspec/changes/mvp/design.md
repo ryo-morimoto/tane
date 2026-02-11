@@ -1,6 +1,6 @@
 # Design
 
-## アーキテクチャ概要
+## Architecture Overview
 
 ```
 ┌──────────────────────────────────────────┐
@@ -42,110 +42,110 @@
                          └── ...
 ```
 
-## 技術選定
+## Technology Choices
 
 ### Runtime: Cloudflare Workers
 
-- Web Standard APIs (Request/Response/fetch) ベースで動作
-- MCP SDKの `WebStandardStreamableHTTPServerTransport` がそのまま使える
-- グローバルエッジデプロイ。self-hostingの手間が最小限
-- 無料枠が十分（100,000 req/day）
+- Runs on Web Standard APIs (Request/Response/fetch)
+- MCP SDK's `WebStandardStreamableHTTPServerTransport` works directly
+- Global edge deployment with minimal self-hosting effort
+- Generous free tier (100,000 req/day)
 
-### データストア: GitHub Repository
+### Data Store: GitHub Repository
 
-- Markdownファイルがsource of truth
-- gitの履歴でアイデアの発展過程が自動的に残る
-- 外部DBを持たないためインフラコストゼロ
-- GitHub APIで全操作可能
+- Markdown files are the source of truth
+- Git history automatically preserves how ideas evolve
+- Zero infrastructure cost with no external DB
+- All operations possible via GitHub API
 
-### 認証: GitHub App OAuth
+### Auth: GitHub App OAuth
 
-- GitHub App を作成し、OAuth Device Flow または Web flowで認証
-- access_tokenはサーバーに保存せず、クライアントがBearer headerで毎回送信
-- サーバーはステートレス
+- Create a GitHub App, authenticate via OAuth Device Flow or Web flow
+- access_token is not stored on the server; client sends it via Bearer header on every request
+- Server is stateless
 
-### 言語: TypeScript
+### Language: TypeScript
 
-- MCP SDKがTypeScript/JavaScript
-- Cloudflare Workersがネイティブサポート
+- MCP SDK is TypeScript/JavaScript
+- Cloudflare Workers has native support
 
-### 依存ライブラリ
+### Dependencies
 
-| ライブラリ | 理由 | 代替検討 |
+| Library | Reason | Alternatives |
 |---|---|---|
-| `@modelcontextprotocol/sdk` | MCP transport + tool定義 | なし（MCP準拠に必須） |
-| `yaml` | frontmatterのparse/serialize | 自前パーサーは割に合わない |
-| `zod` | MCP SDKが依存。ツール定義のスキーマに使用 | 追加コストなし |
+| `@modelcontextprotocol/sdk` | MCP transport + tool definitions | None (required for MCP compliance) |
+| `yaml` | frontmatter parse/serialize | Custom parser not worth the effort |
+| `zod` | MCP SDK dependency. Used for tool schema definitions | No additional cost |
 
-これ以外のライブラリは入れない。GitHub APIアクセスは `fetch` で直接行う。
+No other libraries. GitHub API access is done directly with `fetch`.
 
-## レイヤー構成
+## Layer Structure
 
-### 1. Schema層 (`src/schema.ts`)
+### Schema layer (`src/schema.ts`)
 
-- Idea型定義
+- Idea type definition
 - IdeaStatus enum
-- ID生成関数
-- zodスキーマ
+- ID generation function
+- zod schema
 
-### 2. Markdown層 (`src/markdown.ts`)
+### Markdown layer (`src/markdown.ts`)
 
-- `parseIdea(content: string): Idea` — frontmatter + bodyをパース
-- `serializeIdea(idea: Idea): string` — IdeaオブジェクトをMarkdown文字列に変換
+- `parseIdea(content: string): Idea` — parse frontmatter + body
+- `serializeIdea(idea: Idea): string` — convert Idea object to Markdown string
 
-### 3. GitHub API層 (`src/github.ts`)
+### GitHub API layer (`src/github.ts`)
 
-- `IdeasRepository` class — CRUD操作をカプセル化
-- コンストラクタで `token`, `owner`, `repo` を受け取る
-- fetchで直接GitHub APIを呼ぶ
+- `IdeasRepository` class — encapsulates CRUD operations
+- Constructor takes `token`, `owner`, `repo`
+- Calls GitHub API directly with fetch
 
-### 4. Core層 (`src/core.ts`)
+### Core layer (`src/core.ts`)
 
-- MCPツールとWeb APIの両方から呼ばれるビジネスロジック
-- `IdeasRepository` を使ってCRUD + 検索を実行
-- MCP固有のレスポンス形式やHTTPレスポンスの組み立ては呼び出し側の責務
+- Business logic called by both MCP tools and Web API
+- Executes CRUD + search using `IdeasRepository`
+- MCP-specific response formatting and HTTP response construction are the caller's responsibility
 
-### 5. MCP handler (`src/mcp.ts`)
+### MCP handler (`src/mcp.ts`)
 
-- `McpServer` + `WebStandardStreamableHTTPServerTransport` のセットアップ
-- ツール登録
-- セッション管理
+- `McpServer` + `WebStandardStreamableHTTPServerTransport` setup
+- Tool registration
+- Session management
 
-### 6. Web API handler (`src/api.ts`) — future
+### Web API handler (`src/api.ts`) — future
 
 - REST endpoints
-- Core層を呼んでJSONレスポンスを返す
+- Calls Core layer and returns JSON responses
 
-### 7. Auth handler (`src/auth.ts`)
+### Auth handler (`src/auth.ts`)
 
-- OAuth開始 (`/auth/github`)
-- Callback処理 (`/auth/callback`)
+- OAuth initiation (`/auth/github`)
+- Callback handling (`/auth/callback`)
 
-### 8. Entry point (`src/index.ts`)
+### Entry point (`src/index.ts`)
 
-- Cloudflare Workerの `fetch` handler
-- URLパスでルーティング: `/mcp`, `/api/*`, `/auth/*`, `/health`
+- Cloudflare Worker's `fetch` handler
+- URL path routing: `/mcp`, `/api/*`, `/auth/*`, `/health`
 
-## セッション管理
+## Session Management
 
-Cloudflare Workers はリクエスト間で状態を保持しない。MCPセッションの管理方法:
+Cloudflare Workers don't persist state between requests. MCP session management approach:
 
-**選択肢A: ステートレス（MVP）**
-- セッションIDを使わず、毎回新しいtransportを作成
-- initializeリクエストごとにMcpServer + transportを生成
-- 単一リクエスト内で完結するため、Worker上で動作する
-- 制約: SSE streamingの長時間接続は不可
+**Option A: Stateless (MVP)**
+- No session IDs; create a new transport per request
+- Generate McpServer + transport per initialize request
+- Completes within a single request, so it works on Workers
+- Limitation: Long-lived SSE streaming connections not possible
 
-**選択肢B: Durable Objects（将来）**
-- MCPセッションをDurable Objectとして永続化
-- 長時間のSSE接続やセッション間の状態共有が可能
-- Cloudflare有料プランが必要
+**Option B: Durable Objects (future)**
+- Persist MCP sessions as Durable Objects
+- Enables long-lived SSE connections and cross-session state sharing
+- Requires Cloudflare paid plan
 
-MVPでは選択肢Aで進める。
+MVP uses Option A.
 
-## Cloudflare Workers固有の考慮事項
+## Cloudflare Workers Considerations
 
-- `wrangler.toml` でプロジェクト設定
-- 環境変数（secrets）: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
-- `export default { fetch }` でエントリポイントを定義
-- MCP SDKの `WebStandardStreamableHTTPServerTransport` はWeb Standard APIベースなのでWorker上で直接動作する
+- Project config via `wrangler.toml`
+- Environment variables (secrets): `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
+- Entry point defined with `export default { fetch }`
+- MCP SDK's `WebStandardStreamableHTTPServerTransport` is Web Standard API-based and runs directly on Workers
