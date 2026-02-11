@@ -60,12 +60,15 @@
 ## Auth Handler
 
 - [ ] Create `src/auth.ts`
-  - `AuthConfig` type: clientId, clientSecret, baseUrl
-  - `handleAuthRedirect(config): Response` — redirect to GitHub OAuth URL
-  - `handleAuthCallback(config, url): Response` — exchange code for token, return HTML
-  - `exchangeCode(config, code): Promise<string>` — POST github.com/login/oauth/access_token
-  - `extractToken(req: Request): string | null` — extract Bearer token from Authorization header
-  - Test: `src/auth.test.ts` (extractToken patterns, redirect URL validation)
+  - `AuthConfig` type: clientId, clientSecret
+  - `generateState(): string` — 32 bytes random hex via `crypto.getRandomValues()`
+  - `handleAuthRedirect(config, requestUrl): Response` — generate state, set `oauth_state` cookie (HttpOnly, Secure, SameSite=Lax, Max-Age=600), redirect to GitHub OAuth URL with `client_id`, `redirect_uri`, `scope`, `state`
+  - `handleAuthCallback(config, req): Promise<Response>` — verify state param vs cookie, exchange code for token, return HTML page with token, clear cookie
+  - `exchangeCode(config, code, redirectUri): Promise<string>` — POST github.com/login/oauth/access_token with `redirect_uri`
+  - `extractToken(req: Request): string | null` — extract Bearer token from Authorization header, return null for empty/missing/wrong-scheme
+  - Security headers on all auth responses: `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`
+  - Callback HTML: `<meta name="referrer" content="no-referrer">`, CSP header
+  - Test: `src/auth.test.ts` (extractToken patterns, state generation, state verification, redirect URL construction, cookie handling, error scenarios)
 
 ## MCP Handler
 
