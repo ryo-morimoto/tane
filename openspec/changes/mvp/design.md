@@ -60,8 +60,11 @@
 
 ### Auth: GitHub App OAuth
 
-- Create a GitHub App, authenticate via OAuth Device Flow or Web flow
-- access_token is not stored on the server; client sends it via Bearer header on every request
+- Create a GitHub App with Contents: Read & Write permission
+- User must install the App on their account and grant access to the `ideas` repository
+- User must create the `ideas` repository manually before use
+- Authenticate via OAuth Web flow; token (`ghu_` prefix) is not stored on the server
+- Client sends token via Bearer header on every request
 - Server is stateless
 
 ### Language: TypeScript

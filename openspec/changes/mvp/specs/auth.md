@@ -67,6 +67,40 @@ On every authenticated request (MCP endpoints), the server validates the token:
 
 This is performed before any MCP processing. The result (`login`) is used to construct `RepoConfig`.
 
+## GitHub App Permission Model
+
+### Token types
+
+- OAuth user-to-server token (`ghu_` prefix) is issued via the OAuth Web flow
+- This token's effective permissions = intersection of (OAuth scope) AND (GitHub App installation permissions)
+
+### Installation requirement
+
+- The GitHub App **must be installed** on the user's account and granted access to the `ideas` repository
+- Without installation, the `ghu_` token cannot access private repositories even with `repo` scope
+- Installation is done by the user at `https://github.com/apps/{app-name}/installations/new`
+
+### Required GitHub App permissions
+
+| Permission | Access | Reason |
+|---|---|---|
+| **Contents** | Read & Write | File CRUD via Contents API |
+
+No other permissions are required. `Administration` is intentionally omitted — users create the `ideas` repository manually.
+
+### Setup order
+
+1. Create the GitHub App (with Contents: Read & Write)
+2. User installs the App on their account (granting access to `ideas` repo)
+3. User creates the `ideas` repository manually (private, with README)
+4. User authorizes via `/auth/github` to obtain `ghu_` token
+5. Token is used as `Authorization: Bearer` header on MCP requests
+
+### GitHub API requirements
+
+- All requests must include `User-Agent` header (Cloudflare Workers `fetch` does not set one by default)
+- GitHub API rejects requests without `User-Agent` with 403
+
 ## Security Considerations
 
 ### CSRF Protection via State Parameter
