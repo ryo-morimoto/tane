@@ -16,7 +16,7 @@ All functions take `RepoConfig` as first argument (no class).
 ### ensureRepo
 
 - Repo exists → no-op
-- Repo does not exist → create new (private, with description)
+- Repo does not exist → error (user must create the repository manually)
 
 ### createFile
 

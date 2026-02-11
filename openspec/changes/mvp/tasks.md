@@ -39,7 +39,7 @@
 - [x] Add repository operations to `src/github.ts`
   - `RepoConfig` interface: `{ token: string; owner: string; repo: string }`
   - `createRepoConfig(token, owner, repo?): RepoConfig` — factory, repo defaults to `"ideas"`
-  - `ensureRepo(config): Promise<void>` — check if repo exists, create if not
+  - `ensureRepo(config): Promise<void>` — check if repo exists, error if not
   - `createFile(config, id, content): Promise<void>` — PUT contents API
   - `getFile(config, id): Promise<{ content, sha }>` — GET contents API + base64 decode
   - `updateFile(config, id, content, sha): Promise<void>` — PUT with SHA (optimistic locking)

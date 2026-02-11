@@ -76,16 +76,9 @@ export async function ensureRepo(config: RepoConfig): Promise<void> {
     await gh(`/repos/${config.owner}/${config.repo}`, config.token);
   } catch (e) {
     if (e instanceof GitHubApiError && e.status === 404) {
-      await gh("/user/repos", config.token, {
-        method: "POST",
-        body: JSON.stringify({
-          name: config.repo,
-          private: true,
-          description: "Idea management repository powered by tane",
-          auto_init: true,
-        }),
-      });
-      return;
+      throw new Error(
+        `Repository "${config.owner}/${config.repo}" not found. Please create it on GitHub first.`,
+      );
     }
     throw e;
   }

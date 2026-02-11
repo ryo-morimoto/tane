@@ -2,3 +2,7 @@ name = "tane"
 main = "src/index.ts"
 compatibility_date = "2025-04-01"
 compatibility_flags = ["nodejs_compat"]
+
+routes = [
+  { pattern = "tane.ryo-o.dev", custom_domain = true },
+]

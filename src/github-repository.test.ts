@@ -36,17 +36,13 @@ describe("ensureRepo", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it("creates repo if 404", async () => {
-    const spy = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response("Not Found", { status: 404 }))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ id: 1 }), { status: 200 }),
-      );
-    await ensureRepo(config);
-    expect(spy).toHaveBeenCalledTimes(2);
-    const secondCall = spy.mock.calls[1];
-    expect(secondCall[0]).toBe("https://api.github.com/user/repos");
+  it("throws if repo not found (404)", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response("Not Found", { status: 404 }),
+    );
+    await expect(ensureRepo(config)).rejects.toThrow(
+      'Repository "testuser/ideas" not found',
+    );
   });
 });
 
