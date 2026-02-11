@@ -1,17 +1,39 @@
+import { handleMcp } from "./mcp.js";
+import { handleAuthRedirect, handleAuthCallback } from "./auth.js";
+
 interface Env {
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
 }
 
 export default {
-  async fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
 
-    switch (url.pathname) {
-      case "/health":
-        return Response.json({ status: "ok" });
-      default:
-        return new Response("Not Found", { status: 404 });
+    if (url.pathname === "/health" && req.method === "GET") {
+      return Response.json({ status: "ok" });
     }
+
+    if (url.pathname === "/mcp") {
+      return handleMcp(req, env);
+    }
+
+    if (url.pathname === "/auth/github" && req.method === "GET") {
+      const authConfig = {
+        clientId: env.GITHUB_CLIENT_ID,
+        clientSecret: env.GITHUB_CLIENT_SECRET,
+      };
+      return handleAuthRedirect(authConfig, req);
+    }
+
+    if (url.pathname === "/auth/callback" && req.method === "GET") {
+      const authConfig = {
+        clientId: env.GITHUB_CLIENT_ID,
+        clientSecret: env.GITHUB_CLIENT_SECRET,
+      };
+      return handleAuthCallback(authConfig, req);
+    }
+
+    return new Response("Not Found", { status: 404 });
   },
 };

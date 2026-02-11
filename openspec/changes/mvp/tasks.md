@@ -9,7 +9,7 @@
 
 ## Schema Layer
 
-- [ ] Create `src/schema.ts`
+- [x] Create `src/schema.ts`
   - `IDEA_STATUSES` const array (`seed`, `growing`, `refined`, `archived`, `dropped`)
   - `IdeaStatus` type
   - `Idea` interface (id, title, status, created_at, updated_at, tags, body)
@@ -19,7 +19,7 @@
 
 ## Markdown Layer
 
-- [ ] Create `src/markdown.ts`
+- [x] Create `src/markdown.ts`
   - `parseIdea(content: string): Idea` — split by `---`, parse YAML, validate with zod
   - `serializeIdea(idea: Idea): string` — combine frontmatter + body
   - `ideaToSummary(idea: Idea): string` — single-line summary for list display
@@ -27,7 +27,7 @@
 
 ## GitHub API — Utilities
 
-- [ ] Create utility functions in `src/github.ts`
+- [x] Create utility functions in `src/github.ts`
   - `gh(path, token, options?)` — fetch wrapper. Adds Authorization header, handles errors
   - `base64Encode(str: string): string` — UTF-8 base64 encoding using TextEncoder
   - `base64Decode(b64: string): string` — UTF-8 base64 decoding using TextDecoder
@@ -36,20 +36,19 @@
 
 ## GitHub API — Repository Operations
 
-- [ ] Add repository operations to `src/github.ts`
+- [x] Add repository operations to `src/github.ts`
   - `RepoConfig` interface: `{ token: string; owner: string; repo: string }`
   - `createRepoConfig(token, owner, repo?): RepoConfig` — factory, repo defaults to `"ideas"`
   - `ensureRepo(config): Promise<void>` — check if repo exists, create if not
-  - `createFile(config, idea: Idea): Promise<void>` — PUT contents API
-  - `getFile(config, id: string): Promise<Idea>` — GET contents API + base64 decode + parseIdea
-  - `updateFile(config, idea: Idea): Promise<void>` — GET (fetch SHA) → PUT
-  - `listFiles(config, statusFilter?: string): Promise<Idea[]>` — list directory → fetch each file
-  - `searchFiles(config, query: string): Promise<Idea[]>` — fetch all via list → filter by title/body/tags
+  - `createFile(config, id, content): Promise<void>` — PUT contents API
+  - `getFile(config, id): Promise<{ content, sha }>` — GET contents API + base64 decode
+  - `updateFile(config, id, content, sha): Promise<void>` — PUT with SHA (optimistic locking)
+  - `listFiles(config): Promise<string[]>` — list directory, return idea IDs
   - Test: `src/github-repository.test.ts` (mock fetch, verify CRUD)
 
 ## Core Layer
 
-- [ ] Create `src/core.ts`
+- [x] Create `src/core.ts`
   - `createIdea(config, params): Promise<Idea>` — generate ID, set dates, call createFile
   - `listIdeas(config, statusFilter?): Promise<Idea[]>`
   - `getIdea(config, id): Promise<Idea>`
@@ -59,7 +58,7 @@
 
 ## Auth Handler
 
-- [ ] Create `src/auth.ts`
+- [x] Create `src/auth.ts`
   - `AuthConfig` type: clientId, clientSecret
   - `generateState(): string` — 32 bytes random hex via `crypto.getRandomValues()`
   - `handleAuthRedirect(config, requestUrl): Response` — generate state, set `oauth_state` cookie (HttpOnly, Secure, SameSite=Lax, Max-Age=600), redirect to GitHub OAuth URL with `client_id`, `redirect_uri`, `scope`, `state`
@@ -72,18 +71,18 @@
 
 ## MCP Handler
 
-- [ ] Create `src/mcp.ts`
+- [x] Create `src/mcp.ts`
   - `handleMcp(req: Request, env: Env): Promise<Response>`
   - Create `McpServer` + `WebStandardStreamableHTTPServerTransport` per request
-  - Get GitHub user from Bearer token and create `IdeasRepository`
+  - Get GitHub user from Bearer token and create `RepoConfig`
   - Register 5 MCP tools: create_idea, list_ideas, get_idea, update_idea, search_ideas
   - Each tool calls Core layer functions
   - Tool parameters defined with zod
-- [ ] Verify whether `nodejs_compat` flag is needed (check if MCP SDK uses Node.js APIs)
+- [x] Verify whether `nodejs_compat` flag is needed (check if MCP SDK uses Node.js APIs)
 
 ## Entry Point
 
-- [ ] Update `src/index.ts`
+- [x] Update `src/index.ts`
   - URL routing:
     - `POST|GET|DELETE /mcp` → handleMcp
     - `GET /auth/github` → handleAuthRedirect
