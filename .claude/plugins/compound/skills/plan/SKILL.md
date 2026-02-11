@@ -1,5 +1,7 @@
 ---
+name: plan
 description: "Generate proposal only for team alignment. Run /compound:ship to implement after approval."
+argument-hint: "[change description]"
 ---
 # Compound Plan
 

@@ -1,5 +1,7 @@
 ---
+name: review
 description: "Post-hoc review of existing code: Verify → Review → Learn"
+argument-hint: "[git range or branch name]"
 ---
 # Compound Review
 

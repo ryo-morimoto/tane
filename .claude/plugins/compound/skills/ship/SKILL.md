@@ -1,5 +1,7 @@
 ---
+name: ship
 description: "Full automated cycle: Plan → Implement → Verify → Review → Learn → Archive"
+argument-hint: "[change description or existing change slug]"
 ---
 # Compound Ship
 
