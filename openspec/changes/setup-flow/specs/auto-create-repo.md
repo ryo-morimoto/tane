@@ -18,7 +18,7 @@ Guide users to create the `ideas` repository via actionable error messages. No a
 
 - Repo exists → no-op (unchanged)
 - Repo does not exist (404) → error with actionable message including create URL:
-  `"Repository not found. Create it at https://github.com/new?name=ideas&private=true then retry."`
+  `"Repository not found. Create it at https://github.com/new?name=ideas&private=true&description=Idea+management+repository+powered+by+tane then retry."`
 
 ## Rationale for not auto-creating
 

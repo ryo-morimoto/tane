@@ -15,7 +15,7 @@ Error messages guide users to the specific action needed with direct links.
 
 ## ensureRepo error
 
-- Repo not found (404) → `"Repository not found. Create it at https://github.com/new?name=ideas&private=true then retry."`
+- Repo not found (404) → `"Repository not found. Create it at https://github.com/new?name=ideas&private=true&description=Idea+management+repository+powered+by+tane then retry."`
 
 ## MCP tool errors
 

@@ -86,7 +86,7 @@ export async function ensureRepo(config: RepoConfig): Promise<void> {
   } catch (e) {
     if (e instanceof GitHubApiError && e.status === 404) {
       throw new Error(
-        `Repository not found. Create it at https://github.com/new?name=${config.repo}&private=true then retry.`
+        `Repository not found. Create it at https://github.com/new?name=${config.repo}&private=true&description=Idea+management+repository+powered+by+tane then retry.`
       );
     }
     throw e;
