@@ -2,16 +2,17 @@
 
 ## Overview
 
-Three changes to reduce setup from 3 manual steps to 1:
+Two changes to reduce setup friction. No additional GitHub App permissions required.
 
 ```
 Before:
-  1. User discovers and visits github.com/apps/tane-app/installations/new
+  1. User discovers and visits github.com/apps/tane-app/installations/new (URL not surfaced)
   2. User creates "ideas" repo manually on GitHub
   3. User visits /auth/github for OAuth token
 
 After:
-  1. User visits /auth/github → install + OAuth + auto-create repo
+  1. User visits /auth/github → App install + OAuth in one flow
+  2. On first tool use, error guides user to create "ideas" repo via direct link
 ```
 
 ## Change 1: Unified install + auth redirect
@@ -72,11 +73,11 @@ Note: The `state` parameter is passed as a query parameter on the install URL. G
 
 The callback URL is configured in the GitHub App settings (not passed as `redirect_uri` in the URL). This is a GitHub App behavior difference from plain OAuth Apps.
 
-## Change 2: Auto-create repository
+## Change 2: Actionable error messages
 
 ### `ensureRepo` (src/github.ts)
 
-Restore auto-creation logic:
+No auto-creation. Improve error message with direct link to create the repo:
 
 ```typescript
 export async function ensureRepo(config: RepoConfig): Promise<void> {
@@ -84,46 +85,16 @@ export async function ensureRepo(config: RepoConfig): Promise<void> {
     await gh(`/repos/${config.owner}/${config.repo}`, config.token);
   } catch (e) {
     if (e instanceof GitHubApiError && e.status === 404) {
-      try {
-        await gh("/user/repos", config.token, {
-          method: "POST",
-          body: JSON.stringify({
-            name: config.repo,
-            private: true,
-            description: "Idea management repository powered by tane",
-            auto_init: true,
-          }),
-        });
-        return;
-      } catch (createError) {
-        if (createError instanceof GitHubApiError && createError.status === 403) {
-          throw new Error(
-            `Failed to create repository. Ensure the tane GitHub App is installed: https://github.com/apps/${appSlug}/installations/new`
-          );
-        }
-        throw createError;
-      }
+      throw new Error(
+        `Repository not found. Create it at https://github.com/new?name=${config.repo}&private=true then retry.`
+      );
     }
     throw e;
   }
 }
 ```
 
-Problem: `ensureRepo` currently takes only `RepoConfig`. It needs `appSlug` for error messages.
-
-Solution: Add `appSlug` to `RepoConfig` or pass it as a separate parameter. Since `appSlug` is unrelated to repo config, pass it as a second parameter:
-
-```typescript
-export async function ensureRepo(config: RepoConfig, appSlug: string): Promise<void>
-```
-
-The `appSlug` flows from `Env` → `handleMcp` → `createIdea` → `ensureRepo`.
-
-### GitHub App permission
-
-Add **Administration: Read & Write** to the GitHub App. Existing installations will see a permission update prompt.
-
-## Change 3: Actionable error messages
+No signature change, no `appSlug` parameter needed.
 
 ### MCP tool errors (src/mcp.ts)
 
@@ -147,19 +118,28 @@ Maps `GitHubApiError` status codes to user-facing messages:
 | Status | Message |
 |--------|---------|
 | 401 | `Authentication failed. Re-authorize at {origin}/auth/github` |
-| 403 | `Permission denied. Ensure the tane GitHub App is installed: {installUrl}` |
-| 404 | `Repository not found. Ensure the tane GitHub App has access: {installUrl}` |
+| 403 | `Permission denied. Ensure the tane GitHub App is installed and has access to the ideas repository: https://github.com/apps/{appSlug}/installations/new` |
 | other | `An error occurred: {message}` |
+
+Errors from `ensureRepo` (not `GitHubApiError`) are passed through as-is, since they already contain actionable messages.
+
+## GitHub App permissions
+
+**No changes.** Contents: Read & Write remains the only permission. Administration is intentionally omitted.
+
+## GitHub App settings change (manual)
+
+- Enable: "Request user authorization (OAuth) during installation"
 
 ## Files changed
 
 | File | Change |
 |------|--------|
-| `src/auth.ts` | `AuthConfig.appSlug`, redirect URL change |
+| `src/auth.ts` | `AuthConfig.appSlug`, redirect URL → install URL |
 | `src/auth.test.ts` | Update tests for new redirect target |
-| `src/github.ts` | `ensureRepo` auto-creation restored, `appSlug` param |
-| `src/github-repository.test.ts` | Update ensureRepo tests |
-| `src/mcp.ts` | Error wrapping, `formatError`, pass `appSlug` |
+| `src/github.ts` | `ensureRepo` error message with create URL |
+| `src/github-repository.test.ts` | Update ensureRepo test |
+| `src/mcp.ts` | Error wrapping with `formatError`, `appSlug` from env |
 | `src/index.ts` | `Env.GITHUB_APP_SLUG`, pass to handlers |
 | `src/index.test.ts` | Update env mock |
 | `wrangler.toml` | Add `[vars]` section with `GITHUB_APP_SLUG` |

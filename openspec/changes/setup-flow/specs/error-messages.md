@@ -11,15 +11,20 @@ Provide actionable error messages when setup is incomplete.
 
 ## Target state
 
-Error messages guide users to the specific action needed.
+Error messages guide users to the specific action needed with direct links.
+
+## ensureRepo error
+
+- Repo not found (404) → `"Repository not found. Create it at https://github.com/new?name=ideas&private=true then retry."`
 
 ## MCP tool errors
 
 ### Scenarios
 
-- Repo not found (404) after auto-create attempt fails → `"Failed to create the ideas repository. Please check that the tane GitHub App is installed on your account: https://github.com/apps/{app-slug}/installations/new"`
-- GitHub API returns 403 on repo operations → `"Permission denied. Please ensure the tane GitHub App is installed and has access to the ideas repository: https://github.com/apps/{app-slug}/installations/new"`
-- GitHub API returns 401 during tool execution → `"Authentication failed. Your token may have expired. Please re-authorize at https://{origin}/auth/github"`
+- `GitHubApiError` 401 during tool execution → `"Authentication failed. Re-authorize at {origin}/auth/github"`
+- `GitHubApiError` 403 on repo operations → `"Permission denied. Ensure the tane GitHub App is installed and has access to the ideas repository: https://github.com/apps/{appSlug}/installations/new"`
+- `ensureRepo` error (plain Error, not GitHubApiError) → pass through as-is (already contains actionable message with create URL)
+- Other errors → `"An error occurred: {message}"`
 
 ## Auth endpoint errors
 
