@@ -95,14 +95,15 @@ No other libraries. GitHub API access is done directly with `fetch`.
 
 ### GitHub API layer (`src/github.ts`)
 
-- `IdeasRepository` class — encapsulates CRUD operations
-- Constructor takes `token`, `owner`, `repo`
+- `RepoConfig` interface — holds `token`, `owner`, `repo` (immutable config, not a class)
+- `createRepoConfig(token, owner, repo?): RepoConfig` — factory with `repo` defaulting to `"ideas"`
+- Exported functions take `RepoConfig` as first argument: `ensureRepo`, `createFile`, `getFile`, `updateFile`, `listFiles`, `searchFiles`
 - Calls GitHub API directly with fetch
 
 ### Core layer (`src/core.ts`)
 
 - Business logic called by both MCP tools and Web API
-- Executes CRUD + search using `IdeasRepository`
+- Exported functions take `RepoConfig` as first argument: `createIdea`, `listIdeas`, `getIdea`, `updateIdea`, `searchIdeas`
 - MCP-specific response formatting and HTTP response construction are the caller's responsibility
 
 ### MCP handler (`src/mcp.ts`)

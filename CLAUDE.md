@@ -28,6 +28,32 @@ This is an OSS project. **All text must be in English:**
 - Access GitHub REST API directly with fetch (no Octokit)
 - All data stored as Markdown files in GitHub repositories. No external DB
 
+## TypeScript: Function/Module vs Class
+
+**Default to functions/modules.** Only use classes when a specific justification applies.
+
+### Use functions/modules (default) when:
+
+- Logic is stateless or pure input → output
+- Building utilities, helpers, or domain logic
+- You need tree shaking (named exports work; class static methods don't)
+- You want composability (pipe, higher-order functions) or testability (pure functions, no constructor mocking)
+
+### Use classes only when:
+
+- Managing a **long-lived stateful resource** with lifecycle (`init()` / `dispose()`)
+- The **framework requires it** (decorators, DI containers)
+- Implementing a well-known OOP pattern where class form is idiomatic (`EventEmitter`, `Error` subclass)
+
+### Rules
+
+- Never create a class with only static methods — use exported functions
+- Never create a class just to group related functions — use a module (file)
+- Avoid inheritance hierarchies — prefer composition
+- Avoid `this` — verify a closure-based factory (`createXxx()`) wouldn't be simpler
+- Prefer `interface` + factory function over `class` for data-carrying objects
+- If a class has no mutable instance state, it should not be a class
+
 ## Test Commands
 
 - `bun test` — unit tests

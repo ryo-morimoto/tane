@@ -9,36 +9,38 @@
 - 401 response → authentication error
 - Authorization header is correctly set
 
-## IdeasRepository
+## Repository Operations
+
+All functions take `RepoConfig` as first argument (no class).
 
 ### ensureRepo
 
 - Repo exists → no-op
 - Repo does not exist → create new (private, with description)
 
-### create
+### createFile
 
 - New Idea → creates file via `PUT /repos/{owner}/{repo}/contents/ideas/{id}.md`
 - base64-encoded content is correct
 - Commit message is set
 
-### get
+### getFile
 
 - Existing ID → returns Idea object (base64 decode → parseIdea)
 - Non-existing ID → error
 
-### update
+### updateFile
 
 - Existing Idea → fetches current SHA then PUTs (optimistic locking)
 - SHA mismatch (concurrent update) → 409 error
 
-### list
+### listFiles
 
 - Directory has files → returns Idea[]
 - statusFilter specified → filtered results
 - Directory empty or does not exist → empty array
 
-### search
+### searchFiles
 
 - Query matches ideas → returns matched Idea[]
 - No matches → empty array

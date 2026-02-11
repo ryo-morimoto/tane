@@ -34,27 +34,28 @@
   - `getUser(token: string): Promise<{ login: string }>` — GET /user
   - Test: `src/github.test.ts` (base64 round-trip, gh header injection)
 
-## GitHub API — IdeasRepository
+## GitHub API — Repository Operations
 
-- [ ] Add `IdeasRepository` class to `src/github.ts`
-  - constructor: `(token: string, owner: string, repo?: string)` — repo defaults to `"ideas"`
-  - `ensureRepo()` — check if repo exists, create if not
-  - `create(idea: Idea)` — PUT contents API
-  - `get(id: string): Promise<Idea>` — GET contents API + base64 decode + parseIdea
-  - `update(idea: Idea)` — GET (fetch SHA) → PUT
-  - `list(statusFilter?: string): Promise<Idea[]>` — list directory → fetch each file
-  - `search(query: string): Promise<Idea[]>` — fetch all via list → filter by title/body/tags
+- [ ] Add repository operations to `src/github.ts`
+  - `RepoConfig` interface: `{ token: string; owner: string; repo: string }`
+  - `createRepoConfig(token, owner, repo?): RepoConfig` — factory, repo defaults to `"ideas"`
+  - `ensureRepo(config): Promise<void>` — check if repo exists, create if not
+  - `createFile(config, idea: Idea): Promise<void>` — PUT contents API
+  - `getFile(config, id: string): Promise<Idea>` — GET contents API + base64 decode + parseIdea
+  - `updateFile(config, idea: Idea): Promise<void>` — GET (fetch SHA) → PUT
+  - `listFiles(config, statusFilter?: string): Promise<Idea[]>` — list directory → fetch each file
+  - `searchFiles(config, query: string): Promise<Idea[]>` — fetch all via list → filter by title/body/tags
   - Test: `src/github-repository.test.ts` (mock fetch, verify CRUD)
 
 ## Core Layer
 
 - [ ] Create `src/core.ts`
-  - `createIdea(repo, params): Promise<Idea>` — generate ID, set dates, call repo.create
-  - `listIdeas(repo, statusFilter?): Promise<Idea[]>`
-  - `getIdea(repo, id): Promise<Idea>`
-  - `updateIdea(repo, id, params): Promise<Idea>` — fetch existing, merge, update updated_at
-  - `searchIdeas(repo, query): Promise<Idea[]>`
-  - Test: `src/core.test.ts` (mock IdeasRepository)
+  - `createIdea(config, params): Promise<Idea>` — generate ID, set dates, call createFile
+  - `listIdeas(config, statusFilter?): Promise<Idea[]>`
+  - `getIdea(config, id): Promise<Idea>`
+  - `updateIdea(config, id, params): Promise<Idea>` — fetch existing, merge, update updated_at
+  - `searchIdeas(config, query): Promise<Idea[]>`
+  - Test: `src/core.test.ts` (mock github functions)
 
 ## Auth Handler
 
