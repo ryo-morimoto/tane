@@ -1,15 +1,18 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "tane-local",
-  "description": "Local plugins for tane project",
   "owner": {
     "name": "ryo-morimoto"
+  },
+  "metadata": {
+    "description": "Local plugins for tane project"
   },
   "plugins": [
     {
       "name": "compound",
-      "version": "0.1.0",
-      "description": "Compound Engineering workflow",
-      "source": "./compound"
+      "source": "./compound",
+      "description": "Compound Engineering workflow: plan, implement, verify, review, learn",
+      "version": "0.1.0"
     }
   ]
 }

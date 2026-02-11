@@ -22,6 +22,14 @@
       }
     ]
   },
+  "extraKnownMarketplaces": {
+    "tane-local": {
+      "source": {
+        "source": "directory",
+        "path": "./.claude/plugins"
+      }
+    }
+  },
   "enabledPlugins": {
     "compound@tane-local": true
   }
