@@ -48,3 +48,7 @@ curl -s https://tane.ryo-o.dev/health && echo
 - MCP initialize: returned server info with name=tane, version=0.1.0
 - create_idea: returned Created idea: 2026-02-12-setup-flow-verification with full markdown
 - formatError: unit tested — 401 re-authorize link, 403 install link, other GitHubApiError wrapped, plain Error pass-through, non-Error stringified
+
+## Checkpoint Summary
+
+All 16 tasks complete. Unified install+auth redirect replaces the 3-step setup with a single /auth/github entry point. Actionable error messages guide users to create the ideas repo and re-authorize or install the App when needed. 77 tests pass, 0 type errors, showboat verify clean.
