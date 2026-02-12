@@ -2,8 +2,8 @@
 
 ## GitHub App Settings (manual)
 
-- [ ] Enable "Request user authorization (OAuth) during installation" on tane-app
-- [ ] Confirm Callback URL is `https://tane.ryo-o.dev/auth/callback`
+- [x] Enable "Request user authorization (OAuth) during installation" on tane-app
+- [x] Confirm Callback URL is `https://tane.ryo-o.dev/auth/callback`
 
 ## Unified Install + Auth Redirect
 
@@ -28,8 +28,8 @@
 
 ## Deploy & Verify
 
-- [ ] `wrangler deploy`
-- [ ] Visit `/auth/github` → confirm redirect to App install page
-- [ ] Complete install + OAuth flow → confirm token is returned
-- [ ] Call `create_idea` without `ideas` repo → confirm error includes create link
-- [ ] Call `create_idea` with `ideas` repo → confirm success
+- [x] `wrangler deploy`
+- [x] Visit `/auth/github` → confirm redirect to App install page
+- [x] Complete install + OAuth flow → confirm token is returned
+- [x] Call `create_idea` without `ideas` repo → confirm error includes create link
+- [x] Call `create_idea` with `ideas` repo → confirm success
