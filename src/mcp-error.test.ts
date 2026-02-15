@@ -9,7 +9,7 @@ describe("formatError", () => {
   it("returns re-authorize link for GitHubApiError 401", () => {
     const err = new GitHubApiError(401, "Unauthorized");
     expect(formatError(err, appSlug, origin)).toBe(
-      "Authentication failed. Re-authorize at https://tane.ryo-o.dev/auth/github",
+      "Authentication failed. Re-authorize at https://tane.ryo-o.dev/authorize",
     );
   });
 

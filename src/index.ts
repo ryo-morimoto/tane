@@ -1,42 +1,42 @@
-import { handleMcp } from "./mcp.js";
-import { handleAuthRedirect, handleAuthCallback } from "./auth.js";
+import OAuthProvider from "@cloudflare/workers-oauth-provider";
+import { GitHubHandler } from "./github-handler.js";
+import type { GrantProps } from "./mcp.js";
+
+export { TaneMcpSession } from "./mcp-session.js";
 
 interface Env {
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
   GITHUB_APP_SLUG: string;
+  MCP_SESSION: DurableObjectNamespace;
+  OAUTH_KV: KVNamespace;
 }
 
-export default {
-  async fetch(req: Request, env: Env): Promise<Response> {
-    const url = new URL(req.url);
+const apiHandler = {
+  async fetch(request: Request, env: unknown, ctx: unknown) {
+    const props = (ctx as { props: GrantProps }).props;
+    const workerEnv = env as Env;
+    const sessionId = request.headers.get("mcp-session-id");
 
-    if (url.pathname === "/health" && req.method === "GET") {
-      return Response.json({ status: "ok" });
-    }
+    const doId = sessionId
+      ? workerEnv.MCP_SESSION.idFromName(sessionId)
+      : workerEnv.MCP_SESSION.newUniqueId();
+    const stub = workerEnv.MCP_SESSION.get(doId);
 
-    if (url.pathname === "/mcp") {
-      return handleMcp(req, env);
-    }
+    // Pass grant props to DO via internal header
+    const forwarded = new Request(request.url, request);
+    forwarded.headers.set("x-grant-props", JSON.stringify(props));
 
-    if (url.pathname === "/auth/github" && req.method === "GET") {
-      const authConfig = {
-        clientId: env.GITHUB_CLIENT_ID,
-        clientSecret: env.GITHUB_CLIENT_SECRET,
-        appSlug: env.GITHUB_APP_SLUG,
-      };
-      return handleAuthRedirect(authConfig, req);
-    }
-
-    if (url.pathname === "/auth/callback" && req.method === "GET") {
-      const authConfig = {
-        clientId: env.GITHUB_CLIENT_ID,
-        clientSecret: env.GITHUB_CLIENT_SECRET,
-        appSlug: env.GITHUB_APP_SLUG,
-      };
-      return handleAuthCallback(authConfig, req);
-    }
-
-    return new Response("Not Found", { status: 404 });
+    return stub.fetch(forwarded);
   },
 };
+
+export default new OAuthProvider({
+  apiRoute: "/mcp",
+  apiHandler: apiHandler as any,
+  defaultHandler: GitHubHandler as any,
+  authorizeEndpoint: "/authorize",
+  tokenEndpoint: "/token",
+  clientRegistrationEndpoint: "/register",
+  scopesSupported: ["mcp:tools"],
+});

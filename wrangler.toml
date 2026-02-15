@@ -9,3 +9,17 @@ routes = [
 
 [vars]
 GITHUB_APP_SLUG = "tane-app"
+
+# OAuth token storage (workers-oauth-provider)
+[[kv_namespaces]]
+binding = "OAUTH_KV"
+id = "PLACEHOLDER"
+
+# MCP session persistence
+[[durable_objects.bindings]]
+name = "MCP_SESSION"
+class_name = "TaneMcpSession"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["TaneMcpSession"]

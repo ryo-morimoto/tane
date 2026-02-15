@@ -1,50 +1,28 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { IDEA_STATUSES } from "./schema.js";
 import { ideaToSummary, serializeIdea } from "./markdown.js";
-import { createRepoConfig, getUser } from "./github.js";
+import { createRepoConfig } from "./github.js";
 import { createIdea, listIdeas, getIdea, updateIdea, searchIdeas } from "./core.js";
-import { extractToken } from "./auth.js";
 import { formatError } from "./format-error.js";
 
-interface Env {
-  GITHUB_CLIENT_ID: string;
-  GITHUB_CLIENT_SECRET: string;
+export interface GrantProps {
+  login: string;
+  accessToken: string;
+}
+
+interface McpEnv {
   GITHUB_APP_SLUG: string;
 }
 
-function authError(message: string): Response {
-  return new Response(JSON.stringify({ error: message }), {
-    status: 401,
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "no-store",
-    },
-  });
-}
-
-export async function handleMcp(req: Request, env: Env): Promise<Response> {
-  const token = extractToken(req);
-  if (!token) {
-    return authError("Missing or invalid Authorization header");
-  }
-
-  let user: { login: string };
-  try {
-    user = await getUser(token);
-  } catch {
-    return authError("Invalid or expired token");
-  }
-
-  const config = createRepoConfig(token, user.login);
+export function registerTools(
+  server: McpServer,
+  props: GrantProps,
+  env: McpEnv,
+  origin: string,
+): void {
+  const config = createRepoConfig(props.accessToken, props.login);
   const appSlug = env.GITHUB_APP_SLUG;
-  const origin = new URL(req.url).origin;
-
-  const server = new McpServer({
-    name: "tane",
-    version: "0.1.0",
-  });
 
   server.registerTool(
     "create_idea",
@@ -167,12 +145,4 @@ export async function handleMcp(req: Request, env: Env): Promise<Response> {
       }
     },
   );
-
-  const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: undefined,
-  });
-
-  await server.connect(transport);
-
-  return transport.handleRequest(req);
 }
