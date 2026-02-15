@@ -84,3 +84,7 @@ grep "/authorize" src/format-error.ts
 ```output
       return `Authentication failed. Re-authorize at ${origin}/authorize`;
 ```
+
+## Checkpoint Summary
+
+Replaced custom token copy-paste auth with MCP OAuth 2.1 spec-compliant flow. Added OAuthProvider wrapper (workers-oauth-provider), GitHubHandler (Hono) for GitHub OAuth redirect/callback, and TaneMcpSession Durable Object with StreamableHTTPTransport. Refactored registerTools as a factory receiving encrypted grant props. Deleted src/auth.ts. 61 tests pass, typecheck clean. Pre-deploy: create OAUTH_KV namespace, set COOKIE_ENCRYPTION_KEY secret, update GitHub App callback URL.
